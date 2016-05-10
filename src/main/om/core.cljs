@@ -955,26 +955,27 @@
                      :else (get m :react-key))
            shared  (or (:shared m) (get-shared *parent*))
            ctor    (get-descriptor (getf f cursor' opts) (:descriptor m))]
-       (ctor #js {:__om_cursor cursor'
-                  :__om_index (::index m)
-                  :__om_init_state init-state
-                  :__om_state state
-                  :__om_shared shared
-                  :__om_root_key *root-key*
-                  :__om_app_state *state*
-                  :__om_descriptor *descriptor*
-                  :__om_instrument *instrument*
-                  :key (or rkey js/undefined) ;; annoying
-                  :children
-                  (if (nil? opts)
-                    (fn [this]
-                      (let [ret (f cursor' this)]
-                        (valid-component? ret f)
-                        ret))
-                    (fn [this]
-                      (let [ret (f cursor' this opts)]
-                        (valid-component? ret f)
-                        ret)))})))))
+       (ctor (cond-> #js{:__om_cursor cursor'
+                         :__om_index (::index m)
+                         :__om_init_state init-state
+                         :__om_state state
+                         :__om_shared shared
+                         :__om_root_key *root-key*
+                         :__om_app_state *state*
+                         :__om_descriptor *descriptor*
+                         :__om_instrument *instrument*
+                         :children
+                         (if (nil? opts)
+                           (fn [this]
+                             (let [ret (f cursor' this)]
+                               (valid-component? ret f)
+                               ret))
+                           (fn [this]
+                             (let [ret (f cursor' this opts)]
+                               (valid-component? ret f)
+                               ret)))}
+               rkey (as-> props (do (set! (.-key props) rkey)
+                                    props))))))))
 
 (defn build
   "Builds an Om component. Takes an IRender/IRenderState instance

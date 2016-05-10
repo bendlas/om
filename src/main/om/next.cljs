@@ -346,16 +346,17 @@
                    (p/basis-t *reconciler*)
                    0)]
          (js/React.createElement class
-          #js {:key               key
-               :ref               ref
-               :omcljs$reactKey   key
-               :omcljs$value      (om-props props t)
-               :omcljs$path       (-> props meta :om-path)
-               :omcljs$reconciler *reconciler*
-               :omcljs$parent     *parent*
-               :omcljs$shared     *shared*
-               :omcljs$instrument *instrument*
-               :omcljs$depth      *depth*}
+           (cond-> #js{:ref               ref
+                       :omcljs$value      (om-props props t)
+                       :omcljs$path       (-> props meta :om-path)
+                       :omcljs$reconciler *reconciler*
+                       :omcljs$parent     *parent*
+                       :omcljs$shared     *shared*
+                       :omcljs$instrument *instrument*
+                       :omcljs$depth      *depth*}
+             key (as-> props
+                     (do (set! (.-key props) key)
+                         props)))
            (util/force-children children)))))))
 
 (defn ^boolean component?
